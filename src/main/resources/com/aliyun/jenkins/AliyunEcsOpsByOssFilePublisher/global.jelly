@@ -1,0 +1,19 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <f:section title="Alibabacloud Automatic Package Deployment of post-build Credentials">
+        <f:description>
+            You must be provide an AccessKey pair
+            See
+            <a href="https://www.alibabacloud.com/help/en/resource-access-management/latest/accesskey-pairs-create-an-accesskey-pair-for-a-ram-user#task-2245479">
+                Alibaba Cloud documentation
+            </a>
+        </f:description>
+        <f:entry title="Aliyun Access Key" field="accessKeyId">
+            <f:textbox/>
+        </f:entry>
+        <f:entry title="Aliyun Secret Key" field="accessKeySecret">
+            <f:password/>
+        </f:entry>
+    </f:section>
+</j:jelly>

@@ -27,6 +27,7 @@ import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
@@ -296,7 +297,7 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
         try {
             response = aliyun.oosClient.getAcsResponse(request);
             executionId = response.getExecution().getExecutionId();
-            listener.getLogger().println("you can login aliyun oos console:" + "https://oos.console.aliyun.com/" + this.region + "/execution" + " " + " to query OOS executionId :" + executionId);
+            listener.getLogger().println("you can login aliyun oos console to query oos template implementation progress:" + "https://oos.console.aliyun.com/" + region + "/execution/detail/" + executionId);
         } catch (ClientException e) {
             listener.getLogger().println("execute oos template error info:");
             listener.getLogger().println(e);
@@ -463,6 +464,7 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
             return super.configure(req, json);
         }
 
+        @RequirePOST
         public FormValidation doCheckObjectName(@QueryParameter String objectName) {
             if (objectName.startsWith("/"))
                 return FormValidation.error("objectName can not start with '/'");
@@ -503,6 +505,7 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
         }
 
         // select component about resource type.
+        @RequirePOST
         public ListBoxModel doFillResourceTypeItems() throws ClientException {
             ListBoxModel items = new ListBoxModel();
             for (ResourceType resourceType : ResourceType.values()) {

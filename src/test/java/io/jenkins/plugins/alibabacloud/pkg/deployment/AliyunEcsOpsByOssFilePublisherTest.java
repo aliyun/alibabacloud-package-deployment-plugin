@@ -1,12 +1,10 @@
-package com.aliyun.jenkins;
+package io.jenkins.plugins.alibabacloud.pkg.deployment;
 
-import com.aliyun.jenkins.AliyunEcsOpsByOssFilePublisher;
 import hudson.model.FreeStyleProject;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.recipes.LocalData;
-
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;

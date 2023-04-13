@@ -1,16 +1,12 @@
-package com.aliyun.jenkins;
+package io.jenkins.plugins.alibabacloud.pkg.deployment;
 
 import com.alibaba.fastjson.JSON;
-import com.aliyun.jenkins.utils.ResourceType;
 import com.aliyun.oss.model.*;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.oos.model.v20190601.ListExecutionsRequest;
 import com.aliyuncs.oos.model.v20190601.StartExecutionRequest;
 import com.aliyuncs.oos.model.v20190601.StartExecutionResponse;
-import hudson.Extension;
-import hudson.FilePath;
-import hudson.Launcher;
-import hudson.Util;
+import hudson.*;
 import hudson.model.AbstractProject;
 import hudson.model.Run;
 import hudson.model.TaskListener;
@@ -20,6 +16,7 @@ import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
+import io.jenkins.plugins.alibabacloud.pkg.deployment.utils.ResourceType;
 import jenkins.tasks.SimpleBuildStep;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -28,9 +25,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.interceptor.RequirePOST;
-
-import javax.annotation.Nonnull;
-import javax.servlet.ServletException;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import java.io.*;
 import java.util.*;
 
@@ -131,7 +126,7 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
      * perform is core function: it can be automatically executed based on the project built.
      */
     @Override
-    public void perform(@Nonnull Run<?, ?> build, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
+    public void perform(@NonNull Run<?, ?> build, @NonNull FilePath workspace, @NonNull EnvVars env, @NonNull Launcher launcher, @NonNull TaskListener listener) throws InterruptedException, IOException {
         /**
          * get and check localPath
          * */
@@ -521,7 +516,7 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
         }
 
         //extension plugin name.
-        @Nonnull
+        @NonNull
         @Override
         public String getDisplayName() {
             return "Alibabacloud Automatic Package Deployment";

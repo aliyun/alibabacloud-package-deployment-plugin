@@ -1,4 +1,4 @@
-package com.aliyun.jenkins.utils;
+package io.jenkins.plugins.alibabacloud.pkg.deployment.utils;
 
 /**
  *

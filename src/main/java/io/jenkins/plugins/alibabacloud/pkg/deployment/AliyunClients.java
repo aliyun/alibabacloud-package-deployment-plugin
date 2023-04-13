@@ -1,4 +1,4 @@
-package com.aliyun.jenkins;
+package io.jenkins.plugins.alibabacloud.pkg.deployment;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;

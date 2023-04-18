@@ -6,10 +6,6 @@ project. Upon a successful build, it will zip the workspace, upload to OSS, and
 start a new deployment by OOS Automatic deployment. Optionally, you can set it to batch for the deployment to
 finish, making the final success contingent on the success of the deployment.
 
-### Build Status
-
-[![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/aws-codedeploy-plugin/master)](https://ci.jenkins.io/job/Plugins/job/aws-codedeploy-plugin/job/master/)
-
 Setting up
 ----------
 
@@ -27,7 +23,7 @@ for your project.
 
 **Pipeline**
 
-1.  Create a [Jenkins Pipeline](https://wiki.jenkins-ci.org/display/JENKINS/Pipeline+Plugin) project
+1.  Create a [Jenkins Pipeline](https://plugins.jenkins.io/workflow-aggregator/) project
 1.  Use the Pipeline Snippet Generator
 1.  For 'Sample Step', choose 'step: General Build Step'
 1.  For 'Build Step', choose 'Alibabacloud Automatic Package Deployment'

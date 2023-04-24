@@ -431,7 +431,7 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
     @Extension
     @Symbol("Alibabacloud Automatic Package Deployment")
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-
+        @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
         private String accessKeyId;
         private Secret accessKeySecret;
 
@@ -460,6 +460,7 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
         }
 
         @RequirePOST
+        @SuppressWarnings("lgtm[jenkins/no-permission-check]")
         public FormValidation doCheckObjectName(@QueryParameter String objectName) {
             if (objectName.startsWith("/"))
                 return FormValidation.error("objectName can not start with '/'");
@@ -501,6 +502,7 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
 
         // select component about resource type.
         @RequirePOST
+        @SuppressWarnings("lgtm[jenkins/no-permission-check]")
         public ListBoxModel doFillResourceTypeItems() throws ClientException {
             ListBoxModel items = new ListBoxModel();
             for (ResourceType resourceType : ResourceType.values()) {

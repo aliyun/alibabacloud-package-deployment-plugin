@@ -1,19 +1,20 @@
-package io.jenkins.plugins.alibabacloud.pkg.deployment;
+package io.jenkins.plugins.alibabacloud.pkg.deployment.utils;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.IAcsClient;
 import com.aliyuncs.profile.DefaultProfile;
+import io.jenkins.plugins.alibabacloud.pkg.deployment.PluginImpl;
 
 /**
- * OOS and OSS client
+ * product oos client and oss client.
  */
-public class AliyunClients {
+public class AliyunClientFactory {
     private static final String endpointFormat = "https://oss-%s.aliyuncs.com";
 
-    public  OSS ossClient;
-    public  IAcsClient oosClient;
+    private OSS ossClient;
+    private IAcsClient oosClient;
 
     public OSS getOssClient() {
         return ossClient;
@@ -31,10 +32,12 @@ public class AliyunClients {
         this.oosClient = oosClient;
     }
 
-    public AliyunClients(String regionId, String accessKeyId, String accessKeySecret) {
-        this.ossClient = new OSSClientBuilder().build(String.format(endpointFormat, regionId), accessKeyId, accessKeySecret);
+    public void build(String region) {
+        String accessKeyId = PluginImpl.getInstance().getAccessKeyId();
+        String accessKeySecret = PluginImpl.getInstance().getAccessKeySecret();
+        this.ossClient = new OSSClientBuilder().build(String.format(endpointFormat, region), accessKeyId, accessKeySecret);
         DefaultProfile profile = DefaultProfile.getProfile(
-                regionId, accessKeyId, accessKeySecret
+                region, accessKeyId, accessKeySecret
         );
         this.oosClient = new DefaultAcsClient(profile);
     }

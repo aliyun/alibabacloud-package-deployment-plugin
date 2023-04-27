@@ -1,4 +1,4 @@
 <?jelly escape-by-default='true'?>
 <div>
-    This plugin provides a "post-build" step for Alibabacloud Automatic Package Deployment.
+    This plugin integrates Jenkins with Alibabacloud Package Deployment.
 </div>

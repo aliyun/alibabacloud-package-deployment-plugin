@@ -1,8 +1,5 @@
 package io.jenkins.plugins.alibabacloud.pkg.deployment.utils;
 
-/**
- *
- */
 public enum ResourceType {
 
     ESS("ESS", "ESS ScalingGroup"),

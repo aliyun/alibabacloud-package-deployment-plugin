@@ -6,6 +6,7 @@ import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.oos.model.v20190601.ListExecutionsRequest;
 import com.aliyuncs.oos.model.v20190601.StartExecutionRequest;
 import com.aliyuncs.oos.model.v20190601.StartExecutionResponse;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.*;
 import hudson.model.AbstractProject;
 import hudson.model.Run;
@@ -15,17 +16,15 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import hudson.util.Secret;
+import io.jenkins.plugins.alibabacloud.pkg.deployment.utils.AliyunClientFactory;
 import io.jenkins.plugins.alibabacloud.pkg.deployment.utils.ResourceType;
 import jenkins.tasks.SimpleBuildStep;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.interceptor.RequirePOST;
-import edu.umd.cs.findbugs.annotations.NonNull;
+
 import java.io.*;
 import java.util.*;
 
@@ -147,11 +146,10 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
         //log util
         final PrintStream logger = listener.getLogger();
         listener.getLogger().println("resourceType:" + resourceType);
-        final AliyunClients aliyun;
-        // acquired ALIYUNClients: include:oos client & oss client.
-        aliyun = new AliyunClients(region, getDescriptor().getAccessKeyId(), getDescriptor().getAccessKeySecret());
+        AliyunClientFactory instance = new AliyunClientFactory();
+        instance.build(this.region);
         // Compress and upload the specific path of the built project.
-        zipAndUpload(aliyun, projectName, sourceDirectory, logger);
+        zipAndUpload(instance, projectName, sourceDirectory, logger);
         //batch automatic execution oos template according to resource type.
         String executionId = null;
         StartExecutionRequest request = new StartExecutionRequest();
@@ -159,12 +157,12 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
         ListExecutionsRequest executionsRequest = new ListExecutionsRequest();
         if ("ESS".equals(resourceType)) {
             // ess resource execute template.
-            executionId = essResourceExec(request, aliyun, listener);
+            executionId = essResourceExec(request, instance, listener);
             executionsRequest.setExecutionId(executionId);
             executionsRequest.setTemplateName(ESS_TEMPLATE_NAME);
         } else {
             // ecs resource execute template.
-            executionId = ecsResourceExec(request, aliyun, listener);
+            executionId = ecsResourceExec(request, instance, listener);
             executionsRequest.setExecutionId(executionId);
             executionsRequest.setTemplateName(ECS_TEMPLATE_NAME);
         }
@@ -173,7 +171,7 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
         while (!"Success".equalsIgnoreCase(status) && !"Failed".equalsIgnoreCase(status) && !"Cancelled".equalsIgnoreCase(status)) {
             try {
                 Thread.sleep(500);
-                status = aliyun.oosClient.getAcsResponse(executionsRequest).getExecutions().get(0).getStatus();
+                status = instance.getOosClient().getAcsResponse(executionsRequest).getExecutions().get(0).getStatus();
                 listener.getLogger().println("ExecutionId Status:" + status);
             } catch (ClientException e) {
                 e.printStackTrace();
@@ -182,7 +180,7 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
     }
 
     // ess resource  execute oos Template : ESS_TEMPLATE_NAME
-    private String essResourceExec(StartExecutionRequest request, AliyunClients aliyun, TaskListener listener) {
+    private String essResourceExec(StartExecutionRequest request,  AliyunClientFactory instance, TaskListener listener) {
         request.setTemplateName(ESS_TEMPLATE_NAME);
         String parameter =
                 "{\"invokeDestinationDir\":\"" +
@@ -226,7 +224,7 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
         StartExecutionResponse response = null;
         String executionId = null;
         try {
-            response = aliyun.oosClient.getAcsResponse(request);
+            response = instance.getOosClient().getAcsResponse(request);
             executionId = response.getExecution().getExecutionId();
             listener.getLogger().println("you can login aliyun oos console to query oos template implementation progress:" + "https://oos.console.aliyun.com/" + region + "/execution/detail/" + executionId);
         } catch (ClientException e) {
@@ -237,12 +235,15 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
     }
 
     // ecs resource  execute oos Template : ECS_TEMPLATE_NAME
-    private String ecsResourceExec(StartExecutionRequest request, AliyunClients aliyun, TaskListener listener) {
+    private String ecsResourceExec(StartExecutionRequest request, AliyunClientFactory instance, TaskListener listener) {
         request.setTemplateName(ECS_TEMPLATE_NAME);
         String[] instanceIdString = this.resourceId.split(",");
         HashSet<String> hashSet = new HashSet<>(Arrays.asList(instanceIdString));
         int ids = hashSet.size();
         int batchNumber = this.batchNumber;
+        if(ids < batchNumber){
+            batchNumber = ids;
+        }
         int base = ids / batchNumber;
         int[] batchArray = new int[batchNumber];
         Arrays.fill(batchArray, base);
@@ -290,7 +291,7 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
         StartExecutionResponse response = null;
         String executionId = null;
         try {
-            response = aliyun.oosClient.getAcsResponse(request);
+            response = instance.getOosClient().getAcsResponse(request);
             executionId = response.getExecution().getExecutionId();
             listener.getLogger().println("you can login aliyun oos console to query oos template implementation progress:" + "https://oos.console.aliyun.com/" + region + "/execution/detail/" + executionId);
         } catch (ClientException e) {
@@ -301,9 +302,9 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
     }
 
     //compress directory of localPath and upload to OSS.
-    private void zipAndUpload(AliyunClients aliyun, String projectName, FilePath sourceDirectory, PrintStream logger) throws InterruptedException, IOException {
+    private void zipAndUpload(AliyunClientFactory instance, String projectName, FilePath sourceDirectory, PrintStream logger) throws InterruptedException, IOException {
         File zipFile = zipProject(projectName, sourceDirectory, logger);
-        uploadOssFile(aliyun, zipFile, logger);
+        uploadOssFile(instance, zipFile, logger);
     }
 
     private File zipProject(String projectName, FilePath sourceDirectory, PrintStream logger) throws IOException, InterruptedException {
@@ -353,11 +354,11 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
         return zipFile;
     }
 
-    private void uploadOssFile(AliyunClients aliyun, File zipFile, PrintStream logger) {
+    private void uploadOssFile(AliyunClientFactory instance, File zipFile, PrintStream logger) {
         String bucketName = this.bucket;
         try {
             InitiateMultipartUploadRequest request = new InitiateMultipartUploadRequest(bucketName, objectName);
-            InitiateMultipartUploadResult upresult = aliyun.ossClient.initiateMultipartUpload(request);
+            InitiateMultipartUploadResult upresult = instance.getOssClient().initiateMultipartUpload(request);
             String uploadId = upresult.getUploadId();
             List<PartETag> partETags = new ArrayList<PartETag>();
             final long partSize = 1 * 1024 * 1024L;
@@ -378,12 +379,12 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
                 uploadPartRequest.setInputStream(instream);
                 uploadPartRequest.setPartSize(curPartSize);
                 uploadPartRequest.setPartNumber(i + 1);
-                UploadPartResult uploadPartResult = aliyun.ossClient.uploadPart(uploadPartRequest);
+                UploadPartResult uploadPartResult = instance.getOssClient().uploadPart(uploadPartRequest);
                 partETags.add(uploadPartResult.getPartETag());
             }
             CompleteMultipartUploadRequest completeMultipartUploadRequest =
                     new CompleteMultipartUploadRequest(bucketName, objectName, uploadId, partETags);
-            CompleteMultipartUploadResult completeMultipartUploadResult = aliyun.ossClient.completeMultipartUpload(completeMultipartUploadRequest);
+            CompleteMultipartUploadResult completeMultipartUploadResult = instance.getOssClient().completeMultipartUpload(completeMultipartUploadRequest);
             logger.println(completeMultipartUploadResult.getETag());
         } catch (Exception e) {
             logger.println(e);
@@ -392,8 +393,8 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
             if (!deleted) {
                 logger.println("Failed to clean up file " + zipFile.getPath());
             }
-            if (aliyun.ossClient != null) {
-                aliyun.ossClient.shutdown();
+            if (instance.getOssClient() != null) {
+                instance.getOssClient().shutdown();
             }
         }
     }
@@ -431,34 +432,6 @@ public class AliyunEcsOpsByOssFilePublisher extends Publisher implements SimpleB
     @Extension
     @Symbol("Alibabacloud Automatic Package Deployment")
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-        @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
-        private String accessKeyId;
-        private Secret accessKeySecret;
-
-        public String getAccessKeyId() {
-            return accessKeyId;
-        }
-
-        public void setAccessKeyId(String accessKeyId) {
-            this.accessKeyId = accessKeyId;
-        }
-
-        public String getAccessKeySecret() {
-            return Secret.toString(accessKeySecret);
-        }
-
-        public void setAccessKeySecret(Secret accessKeySecret) {
-            this.accessKeySecret = accessKeySecret;
-        }
-
-        public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
-            accessKeyId = json.getString("accessKeyId");
-            accessKeySecret = Secret.fromString(json.getString("accessKeySecret"));
-            req.bindJSON(this, json);
-            save();
-            return super.configure(req, json);
-        }
-
         @RequirePOST
         @SuppressWarnings("lgtm[jenkins/no-permission-check]")
         public FormValidation doCheckObjectName(@QueryParameter String objectName) {

@@ -5,6 +5,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.recipes.LocalData;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
@@ -27,12 +28,5 @@ public class AliyunEcsOpsByOssFilePublisherTest {
                 "");
        final  AliyunEcsOpsByOssFilePublisher afterPublisher = j.configRoundtrip(publisher);
         j.assertEqualDataBoundBeans(publisher, afterPublisher);
-    }
-    @Test
-    @LocalData
-    public void testSaveUsesSecret() throws Exception {
-        FreeStyleProject project = (FreeStyleProject) j.jenkins.getItem("testSecrets");
-        FreeStyleProject after = j.configRoundtrip(project);
-        assertThat(after.getConfigFile().asString(), not(containsString("TEST_SECRET")));
     }
 }

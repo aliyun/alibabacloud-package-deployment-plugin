@@ -1,0 +1,38 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <f:entry title="${%Region}" field="region">
+        <f:select/>
+    </f:entry>
+    <f:entry title="${%ResourceType}" field="resourceType">
+        <f:select/>
+    </f:entry>
+    <f:entry title="${%ResourceId}" field="resourceId">
+        <f:textbox/>
+    </f:entry>
+    <f:entry title="${%Bucket}" field="bucket">
+        <f:textbox/>
+    </f:entry>
+    <f:entry title="${%ObjectName}" field="objectName">
+        <f:textbox/>
+    </f:entry>
+    <f:entry title="${%LocalPath}" field="localPath">
+        <f:textbox/>
+    </f:entry>
+    <f:entry title="${%Mode}" field="mode">
+        <f:select/>
+    </f:entry>
+    <f:entry title="${%PausePolicy}" field="pausePolicy">
+        <f:select/>
+    </f:entry>
+    <f:entry title="${%BatchNumber}" field="batchNumber">
+        <f:number default="1">
+        </f:number>
+    </f:entry>
+    <f:entry title="${%DestinationDir}" field="destinationDir">
+        <f:textbox/>
+    </f:entry>
+    <f:entry title="${%invokeScript}" field="invokeScript">
+        <f:textarea/>
+    </f:entry>
+</j:jelly>

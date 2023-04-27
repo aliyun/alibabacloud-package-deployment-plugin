@@ -14,11 +14,10 @@
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.361.4</jenkins.version>
+        <powermock.version>1.6.5</powermock.version>
     </properties>
-    <name>Alibabacloud Automatic Package Deployment</name>
-    <description>bulit project directory compressed and upload to OSS,finally,OOS template automatically executes deploy
-        on ECS according to OSS file.
-    </description>
+    <name>Alibabacloud Package Deployment</name>
+    <description>Plugins for deployment package on Alibaba Cloud</description>
     <licenses>
         <license>
             <name>MIT License</name>
@@ -40,9 +39,8 @@
     </scm>
     <dependencies>
         <dependency>
-            <groupId>com.aliyun.oss</groupId>
-            <artifactId>aliyun-sdk-oss</artifactId>
-            <version>3.16.2</version>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-step-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -50,11 +48,27 @@
             <version>2.0.27</version>
         </dependency>
         <dependency>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+            <version>3.16.2</version>
+        </dependency>
+        <dependency>
             <groupId>com.aliyun</groupId>
             <artifactId>aliyun-java-sdk-oos</artifactId>
             <version>1.5.10</version>
         </dependency>
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.jenkins.tools.bom</groupId>
+                <artifactId>bom-2.361.x</artifactId>
+                <version>1981.v17df70e84a_a_1</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
